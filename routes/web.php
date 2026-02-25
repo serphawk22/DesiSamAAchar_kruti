@@ -17,6 +17,11 @@ use App\Http\Controllers\EditorArticleController;
 use App\Http\Controllers\ArticleMediaController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminUserManagementController;
+use App\Http\Controllers\ContentController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\AdminCommentController;
 
 Route::get('/company', [CompanyController::class, 'index'])->name('company');
 Route::get('/company/search', [CompanyController::class, 'search'])->name('company.search');
@@ -101,3 +106,75 @@ Route::put('/amedia/{id}', [ArticleMediaController::class, 'update'])->name('med
 Route::get('/editor/comments', [CommentController::class, 'index'])->name('comments.index');
 Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
 Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
+    ->name('admin.dashboard');
+
+Route::prefix('admin')->group(function () {
+
+    Route::get('/users', [AdminUserManagementController::class, 'index'])
+        ->name('admin.users');
+
+     Route::get('/users/suggestions', [AdminUserManagementController::class, 'suggestions'])
+        ->name('admin.users.suggestions');
+
+    Route::post('/users/promote/{id}', [AdminUserManagementController::class, 'promote'])
+        ->name('admin.users.promote');
+
+    Route::post('/users/block/{id}', [AdminUserManagementController::class, 'block'])
+        ->name('admin.users.block');
+
+    Route::get('/users/activity/{id}', [AdminUserManagementController::class, 'activity'])
+        ->name('admin.users.activity');
+
+     Route::get('/content', [ContentController::class, 'index'])
+        ->name('admin.content');
+
+    Route::post('/content/publish/{id}', [ContentController::class, 'publish'])
+        ->name('admin.content.publish');
+
+    Route::post('/content/delete/{id}', [ContentController::class, 'delete'])
+        ->name('admin.content.delete');
+ 
+    Route::get('/content/suggestions', 
+    [ContentController::class, 'suggestions']
+)->name('admin.content.suggestions');
+
+   Route::get('/categories', [CategoryController::class, 'index'])
+    ->name('admin.categories');
+    Route::get('/admin/categories/suggestions',
+    [CategoryController::class, 'suggestions']
+)->name('admin.categories.suggestions');
+
+Route::post('/categories/store', [CategoryController::class, 'store'])
+    ->name('admin.categories.store');
+
+Route::delete('/categories/delete/{id}', [CategoryController::class, 'destroy'])
+    ->name('admin.categories.delete');
+
+Route::post('/categories/toggle/{id}', [CategoryController::class, 'toggleStatus'])
+    ->name('admin.categories.toggle');
+
+Route::post('/subcategories/store', [CategoryController::class, 'storeSubcategory'])
+    ->name('admin.subcategories.store');
+
+Route::delete('/subcategories/delete/{id}', [CategoryController::class, 'destroySub'])
+    ->name('admin.subcategories.delete');
+
+ Route::get('/comments', [AdminCommentController::class, 'index'])
+        ->name('admin.comments');
+
+    Route::post('/comments/approve/{id}', [AdminCommentController::class, 'approve'])
+        ->name('admin.comments.approve');
+
+    Route::post('/comments/delete/{id}', [AdminCommentController::class, 'delete'])
+        ->name('admin.comments.delete');
+
+    Route::post('/users/ban/{id}', [AdminCommentController::class, 'banUser'])
+        ->name('admin.users.ban');
+
+    Route::get('/reports-dashboard', 
+    [AdminReportController::class, 'index']
+)->name('admin.reports.dashboard');
+
+});

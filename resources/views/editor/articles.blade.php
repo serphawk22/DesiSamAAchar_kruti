@@ -138,8 +138,8 @@ Edit
                         <div class="col-md-4">
                             <label>Status</label>
                             <select name="status" class="form-control">
-                                <option value="draft">Draft</option> 
-                                <option value="archived">Archived</option>
+                                <option value="draft">Draft(Save As Draft)</option> 
+                                <option value="pending">Request(Sent For Approval)</option>
                             </select>
                         </div>
 

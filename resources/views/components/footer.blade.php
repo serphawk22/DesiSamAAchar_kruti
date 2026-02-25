@@ -2,7 +2,7 @@
     <div class="container">
 
         {{-- Full footer for guests and users with role "user" --}}
-        @if(!auth()->check() || auth()->user()->role === 'user')
+        @if(!session('user_role') || session('user_role') === 'user')
             <div class="row">
 
                 <!-- Brand -->

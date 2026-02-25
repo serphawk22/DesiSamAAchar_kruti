@@ -16,7 +16,7 @@ class Subcatagory extends Model
         'status'
     ];
 
-
+public $timestamps = false; 
     /* Relation: Subcategory belongs to Category */
    public function category()
     {

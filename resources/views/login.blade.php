@@ -127,6 +127,11 @@
 <div class="login-card">
 
     <div class="text-center mb-4">
+         @if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
         <div class="brand-title">
             Nifty<span>News</span>
         </div>

@@ -25,6 +25,8 @@
 
     @if($user && $user->role === 'editor')
         <x-editorsidebar />
+        @elseif($user && $user->role === 'admin')
+        <x-adminsidebar />
     @else
         <x-sidebar />
     @endif

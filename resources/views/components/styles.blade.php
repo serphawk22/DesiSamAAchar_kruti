@@ -799,4 +799,8 @@ body.dark .editor-sidebar a:hover {
 .btn-primary:hover {
     background: #5a35a0;
 }
+#suggestionsBox {
+    background: white;
+    border: 1px solid #ddd;
+}
 </style>

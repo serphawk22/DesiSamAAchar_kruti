@@ -11,12 +11,11 @@ class Catagories extends Model
 
     protected $fillable = [
         'name',
-        'slug',
-        'is_trending',
+        'slug',  
         'status'
     ];
 
-
+public $timestamps = false; 
     /* Relation: Category has many Subcategories */
       public function subcategories()
     {

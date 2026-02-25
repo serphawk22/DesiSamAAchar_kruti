@@ -198,7 +198,7 @@
         <select name="role" class="form-control">
             <option value="">Choose Role</option>
             <option value="editor" {{ old('role') == 'editor' ? 'selected' : '' }}>Editor</option>
-            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
+            <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option> 
         </select>
     </div>
     @error('role')
