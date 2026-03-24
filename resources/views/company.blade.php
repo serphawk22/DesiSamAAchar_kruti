@@ -341,6 +341,72 @@ Sector :
 @endif
 
 </div>
+
+<!-- ================= EVENT IMPACT TIMELINE ================= -->
+
+<div class="mt-5">
+
+<h5 class="mb-3">📅 Event Impact Timeline</h5>
+
+@if(!empty($timeline))
+
+<div class="timeline">
+
+@foreach($timeline as $event)
+
+<div class="card p-3 mb-3">
+
+<div class="d-flex justify-content-between">
+
+<div>
+
+<strong>
+{{ \Carbon\Carbon::parse($event['date'])->format('M d') }}
+</strong>
+
+<br>
+
+{{ $event['title'] }}
+
+</div>
+
+<div class="text-end">
+
+@if(!is_null($event['change']))
+
+<span class="{{ $event['change'] >=0 ? 'text-success':'text-danger' }}">
+
+{{ $event['change'] >=0 ? '+' : '' }}{{ $event['change'] }}%
+
+</span>
+
+<br>
+
+<small class="text-muted">Stock Reaction</small>
+
+@else
+
+<span class="text-muted">N/A</span>
+
+@endif
+
+</div>
+
+</div>
+
+</div>
+
+@endforeach
+
+</div>
+
+@else
+
+<p>No events available.</p>
+
+@endif
+
+</div>
  
 </div>
 
