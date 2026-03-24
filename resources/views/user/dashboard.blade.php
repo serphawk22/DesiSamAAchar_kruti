@@ -134,7 +134,45 @@ body.dark .list-group-item { background-color:#1e293b; color:white; }
         <p class="mb-2">No followed categories yet.</p>
     @endif
 </div>
- 
+  {{-- 🔥 Trending Market Impact Today --}}
+<div class="card shadow-sm p-4 mb-4">
+    <h5 class="mb-3">🔥 Trending Market Impact Today</h5>
+
+    <div class="list-group list-group-flush">
+
+        @foreach($sectorImpact as $sector => $data)
+
+        @php
+            $icon = '→';
+            $color = '#64748b';
+
+            if($data['trend'] == 'up'){
+                $icon = '↑';
+                $color = '#16a34a';
+            }
+
+            if($data['trend'] == 'down'){
+                $icon = '↓';
+                $color = '#dc2626';
+            }
+        @endphp
+
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+
+            <span class="fw-semibold">
+                {{ $sector }}
+            </span>
+
+            <span style="font-weight:600; color:{{ $color }};">
+                {{ $icon }} {{ $data['percent'] > 0 ? '+' : '' }}{{ $data['percent'] }}%
+            </span>
+
+        </div>
+
+        @endforeach
+
+    </div>
+</div>
     {{-- 🏦 Dividend Tracker --}}
     <div class="card shadow-sm p-3 mb-4">
         <h5>🏦 Upcoming Dividends</h5>
