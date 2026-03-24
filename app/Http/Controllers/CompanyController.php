@@ -100,7 +100,7 @@ $newsResponse = Http::get("https://newsapi.org/v2/everything", [
     'q' => $query,
     'language' => 'en',
     'sortBy' => 'publishedAt',
-    'pageSize' => 5,
+    'pageSize' => 30,
     'domains' => 'moneycontrol.com,economictimes.indiatimes.com,business-standard.com,livemint.com,ndtvprofit.com',
     'apiKey' => $newsApiKey
 ])->json();
@@ -179,6 +179,12 @@ $scrapedData = $this->scrapeScreener($symbol);
         $quarterly    = $this->scrapeQuarterly($symbol); 
         $technical    = $this->calculateTechnicalIndicators($chartPrices);
         $sectorPerformance = $this->getSectorPerformance($symbol, $chartPrices);
+
+$timeline = $this->buildEventTimeline(
+    $symbol,
+    $news,
+    $instrumentKey
+);
     return view('company', compact(
         'company',
         'quote',
@@ -189,7 +195,8 @@ $scrapedData = $this->scrapeScreener($symbol);
         'scrapedData', 
             'quarterly', 
             'technical',
-            'sectorPerformance'
+            'sectorPerformance',
+            'timeline'
     ));
 }
 //
@@ -426,5 +433,43 @@ private function getSectorPerformance($symbol, $prices)
         'month_stock' => round($stockMonth,2),
         'month_sector' => round($sectorMonth,2)
     ];
+}
+private function buildEventTimeline($symbol, $news, $instrumentKey)
+{
+     $timeline = [];
+
+    $news = collect($news)->take(5);
+
+    foreach ($news as $item) {
+
+        $date = Carbon::parse($item['publishedAt'])->subDay()->format('Y-m-d');
+
+        $candles = $this->market->getHistoricalCandles(
+            $instrumentKey,
+            'day',
+            $date,
+            $date
+        );
+
+        $changePercent = null;
+
+        if (!empty($candles)) {
+
+            $open  = $candles[0][1] ?? null;
+            $close = $candles[0][4] ?? null;
+
+            if ($open && $close) {
+                $changePercent = (($close - $open) / $open) * 100;
+            }
+        }
+
+        $timeline[] = [
+            'date' => $date,
+            'title' => $item['title'] ?? 'Market Event',
+            'change' => $changePercent ? round($changePercent,2) : null
+        ];
+    }
+
+    return $timeline;
 }
 }
