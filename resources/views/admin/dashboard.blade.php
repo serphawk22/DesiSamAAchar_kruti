@@ -1,6 +1,11 @@
 @extends('components.app')
 
 @section('content')
+<style>
+    body.dark .list-group-item-primary{
+        background-color:#1e293b;
+    }
+</style>
 <div class="container-fluid">
 
     <h4 class="mb-4 fw-bold">📊 Admin Dashboard</h4>
@@ -9,24 +14,26 @@
     <div class="row g-4">
 
         <div class="col-md-3">
+             <a href="{{ route('admin.users') }}" class="text-decoration-none text-dark">
             <div class="card shadow-sm p-3 text-center">
                 <h6>Total Users</h6>
                 <h3>{{ $totalUsers }}</h3>
-            </div>
+            </div></a>
         </div>
 
         <div class="col-md-3">
+            <a href="{{ route('admin.users') }}" class="text-decoration-none text-dark">
             <div class="card shadow-sm p-3 text-center">
                 <h6>Total Editors</h6>
                 <h3>{{ $totalEditors }}</h3>
-            </div>
+            </div></a>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-3"><a href="{{ route('admin.content') }}" class="text-decoration-none text-dark">
             <div class="card shadow-sm p-3 text-center">
                 <h6>Total Articles</h6>
                 <h3>{{ $totalArticles }}</h3>
-            </div>
+            </div></a>
         </div>
 
         <div class="col-md-3">
@@ -47,32 +54,37 @@
             </div>
         </div>
     </div>-->
+ <br/>
+  <ul class="list-group shadow-sm mb-3">
+    <li class="list-group-item d-flex justify-content-between align-items-center 
+        {{ $pendingArticles > 0 ? 'list-group-item-primary' : '' }}">
+        
+        <div>
+            🕒 <strong>{{ $pendingArticles }}</strong> Articles Awaiting Review
+        </div>
+
+        @if($pendingArticles > 0)
+            <a href="{{ route('admin.content') }}" 
+               class="btn btn-sm btn-primary">
+                Review Now
+            </a>
+        @endif
+    </li>
+</ul>
 
     {{-- 🔹 Traffic Chart --}}
-    <div class="card mt-5 shadow-sm p-4">
-        <h5 class="mb-3">📈 Visitors (Last 7 Days)</h5>
-        <canvas id="trafficChart"></canvas>
-    </div>
-
-    {{-- 🔹 Trending Topics --}}
-    <div class="card mt-5 shadow-sm p-4">
-        <h5 class="mb-3">🔥 Trending Topics</h5>
-
-        <ul class="list-group">
-            @foreach($trending as $item)
-                <li class="list-group-item d-flex justify-content-between">
-                    {{ $item->title }}
-                    <span class="badge bg-danger">{{ $item->views }} views</span>
-                </li>
-            @endforeach
-        </ul>
-    </div>
-
+   {{-- 🔹 User Activity Chart --}}
+<div class="card mt-5 shadow-sm p-4">
+    <h5 class="mb-3">👤 Visitors (Last 7 Days)</h5>
+    <canvas id="trafficChart"  height="220"></canvas>
+</div>
+ 
 </div>
 
 
 {{-- Chart Script --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 const ctx = document.getElementById('trafficChart');
 
@@ -81,11 +93,20 @@ new Chart(ctx, {
     data: {
         labels: {!! json_encode($traffic->pluck('date')) !!},
         datasets: [{
-            label: 'Articles Published',
+            label: 'User Logins',
             data: {!! json_encode($traffic->pluck('total')) !!},
             borderWidth: 2,
+            tension: 0.4,
             fill: false
         }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true
+            }
+        }
     }
 });
 </script>

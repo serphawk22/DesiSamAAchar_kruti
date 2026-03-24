@@ -14,6 +14,7 @@ class Users extends Model
     'role',
     'language',
     'avatar',
+    'last_login', 
     'remember_token',
 ];
  public $timestamps = false; 

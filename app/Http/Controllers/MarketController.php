@@ -13,225 +13,229 @@ use App\Models\Subcatagory;
 use App\Models\Articles;
 use App\Models\ArticleMedia;
 use App\Models\Users;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
+use App\Services\UpstoxMarketService;
 
 class MarketController extends Controller
 {
-      private function fetchIndex($symbol)
-    {
-        try {
-
-            $response = Http::timeout(10)->get(
-                "https://query1.finance.yahoo.com/v8/finance/chart/{$symbol}",
-                [
-                    'interval' => '5m',
-                    'range'    => '1d'
-                ]
-            );
-
-            if (!$response->successful()) {
-                return null;
-            }
-
-            $json = $response->json();
-
-            if (!isset($json['chart']['result'][0])) {
-                return null;
-            }
-
-            $result = $json['chart']['result'][0];
-
-            $closes = array_filter(
-                $result['indicators']['quote'][0]['close'] ?? []
-            );
-
-            if (count($closes) < 2) {
-                return null;
-            }
-
-            $first = reset($closes);
-            $last  = end($closes);
-
-            return [
-                'price'         => round($last, 2),
-                'changePts'     => round($last - $first, 2),
-                'changePercent' => $first != 0
-                    ? round((($last - $first) / $first) * 100, 2)
-                    : 0,
-                'timestamps'    => $result['timestamp'] ?? [],
-                'closes'        => array_values($closes)
-            ];
-
-        } catch (\Exception $e) {
-            return null;
-        }
-    }
-
-    /* ===============================
-       FETCH SCREENER DATA
-    =============================== */
-    private function fetchScreener($type)
-    {
-        try {
-
-            $response = Http::timeout(10)->get(
-                "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
-                [
-                    'scrIds' => $type,
-                    'count'  => 5
-                ]
-            );
-
-            if (!$response->successful()) {
-                return [];
-            }
-
-            $json = $response->json();
-
-            return $json['finance']['result'][0]['quotes'] ?? [];
-
-        } catch (\Exception $e) {
-            return [];
-        }
-    }
-private function fetchStockList($type)
+    public function home(UpstoxMarketService $market)
 {
-    try {
+    // =========================
+// CHECK SESSION LOGIN
+// =========================
+if (session()->has('user_role')) {
 
-        $url = "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved";
+    $role = session('user_role');
 
-        $response = Http::get($url, [
-            'scrIds' => $type,
-            'count'  => 10
-        ]);
+    if ($role === 'admin') {
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Welcome Admin');
+    }
 
-        if (!$response->successful()) return [];
-
-        return $response['finance']['result'][0]['quotes'] ?? [];
-
-    } catch (\Exception $e) {
-        return [];
+    if ($role === 'editor') {
+        return redirect()->route('editor.dashboard')
+            ->with('success', 'Welcome Editor');
     }
 }
+    $data = Cache::remember('home_page_data', 60, function () use ($market) {
+    $nifty      = "NSE_INDEX|Nifty 50";
+    $sensex     = "BSE_INDEX|SENSEX";
+    $bankNifty  = "NSE_INDEX|Nifty Bank";
+    $niftyIT    = "NSE_INDEX|Nifty IT";
 
-    /* ===============================
-       HOME PAGE
-    =============================== */
-    public function home()
-    {
-        // MAIN INDICES
-        $nifty  = $this->fetchIndex('%5ENSEI');
-        $sensex = $this->fetchIndex('%5EBSESN');
+    $niftyQuote      = $market->getQuote($nifty) ?? [];
+    $sensexQuote     = $market->getQuote($sensex) ?? [];
+    $bankNiftyQuote  = $market->getQuote($bankNifty) ?? [];
+    $niftyITQuote    = $market->getQuote($niftyIT) ?? [];
 
-        if (!$nifty) {
-            return view('welcome', ['error' => 'Market data unavailable']);
-        }
+    // Chart candles for NIFTY 50
+    $candles = $market->getIntradayCandles($nifty);
 
-        // Define variables BEFORE compact
-        $niftyPrice   = $nifty['price'];
-        $niftyChange  = $nifty['changePercent'];
-        $sensexPrice  = $sensex['price'] ?? null;
-        $sensexChange = $sensex['changePercent'] ?? 0;
+    $labels = [];
+    $prices = [];
 
-        // Chart
-        $labels = [];
-        foreach ($nifty['timestamps'] as $time) {
-            $labels[] = date('H:i', $time);
-        }
+    foreach ($candles as $candle) {
+        $labels[] = date('H:i', strtotime($candle[0]));
+        $prices[] = (float) $candle[4];
+    }
 
-        $prices = $nifty['closes'];
+      // =========================
+    // CLEAR OLD DATA
+    // =========================
+    \App\Models\Index::truncate();
+    \App\Models\Stock::truncate();
 
-        // Multiple Indices
-        $indices = [
-            'BSE Sensex' => '%5EBSESN',
-            'NIFTY 50'   => '%5ENSEI',
-            'NIFTY BANK' => '%5ENSEBANK',
-            'NIFTY IT'   => '%5ECNXIT',
-        ];
+    // =========================
+    // PREPARE INDEX DATA
+    // =========================
+    $indexDataToSave = [
+        [
+            'symbol' => $nifty,
+            'name'   => 'NIFTY 50',
+            'price'  => $niftyQuote['last_price'] ?? 0,
+            'change_pts' => $niftyQuote['net_change'] ?? 0,
+            'change_percent' => isset($niftyQuote['net_change'], $niftyQuote['last_price'])
+                ? round(($niftyQuote['net_change'] / ($niftyQuote['last_price'] - $niftyQuote['net_change'])) * 100, 2)
+                : 0,
+        ],
+        [
+            'symbol' => $sensex,
+            'name'   => 'SENSEX',
+            'price'  => $sensexQuote['last_price'] ?? 0,
+            'change_pts' => $sensexQuote['net_change'] ?? 0,
+            'change_percent' => isset($sensexQuote['net_change'], $sensexQuote['last_price'])
+                ? round(($sensexQuote['net_change'] / ($sensexQuote['last_price'] - $sensexQuote['net_change'])) * 100, 2)
+                : 0,
+        ],
+        [
+            'symbol' => $bankNifty,
+            'name'   => 'NIFTY BANK',
+            'price'  => $bankNiftyQuote['last_price'] ?? 0,
+            'change_pts' => $bankNiftyQuote['net_change'] ?? 0,
+            'change_percent' => isset($bankNiftyQuote['net_change'], $bankNiftyQuote['last_price'])
+                ? round(($bankNiftyQuote['net_change'] / ($bankNiftyQuote['last_price'] - $bankNiftyQuote['net_change'])) * 100, 2)
+                : 0,
+        ],
+        [
+            'symbol' => $niftyIT,
+            'name'   => 'NIFTY IT',
+            'price'  => $niftyITQuote['last_price'] ?? 0,
+            'change_pts' => $niftyITQuote['net_change'] ?? 0,
+            'change_percent' => isset($niftyITQuote['net_change'], $niftyITQuote['last_price'])
+                ? round(($niftyITQuote['net_change'] / ($niftyITQuote['last_price'] - $niftyITQuote['net_change'])) * 100, 2)
+                : 0,
+        ],
+    ];
 
-        $marketData = [];
+    // =========================
+    // SAVE INDEX DATA
+    // =========================
+    foreach ($indexDataToSave as $indexData) {
+        \App\Models\Index::create($indexData);
+    }
 
-        foreach ($indices as $name => $symbol) {
+    // =========================
+    // FETCH MARKET MOVERS
+    // =========================
+    $screeners = [
+        'gainers'       => $market->getCustomMarketMovers('gainers'),
+        'losers'        => $market->getCustomMarketMovers('losers'),
+        'most-active'   => $market->getCustomMarketMovers('most-active'), 
+    ];
 
-            $data = $this->fetchIndex($symbol);
+    $typeMap = [
+        'gainers'       => 'gainer',
+        'losers'        => 'loser',
+        'most-active'   => 'most_active', 
+    ];
 
-            if ($data) {
-                $marketData[$name] = [
-                    'price'         => $data['price'],
-                    'changePts'     => $data['changePts'],
-                    'changePercent' => $data['changePercent'],
-                ];
+    // =========================
+    // SAVE STOCK DATA
+    // =========================
+   // dd($screeners);
+   foreach ($screeners as $key => $stocks) {
 
-                 Index::create([
-                'symbol' => $symbol,
-                'name' => $name,
-                'price' => $data['price'],
-                'change_pts' => $data['changePts'],
-                'change_percent' => $data['changePercent'],
-            ]);
-            }
-        }
- 
-        // Screener Data (Dynamic)
-        $gainers    = $this->fetchScreener('day_gainers');
-        $losers     = $this->fetchScreener('day_losers');
-        $mostActive = $this->fetchScreener('most_actives');
+    foreach ($stocks as $stock) {
 
-$mostActiveValue  = $this->fetchStockList('most_actives');
-$topGainers       = $this->fetchStockList('day_gainers');
-$topLosers        = $this->fetchStockList('day_losers');
-$weekHigh         = $this->fetchStockList('52_week_high');
-$weekLow          = $this->fetchStockList('52_week_low');
+        \App\Models\Stock::updateOrCreate(
+            ['symbol' => $stock['symbol'] ?? ''],
+            [
+                'name'   => $stock['symbol'] 
+                            ?? $stock['shortName'] 
+                            ?? $stock['longName'] 
+                            ?? '',
 
-// Define mapping of stock list types to your DB types
-$screeners = [
-    'day_gainers'    => 'gainer',
-    'day_losers'     => 'loser',
-    'most_actives'   => 'most_active',
-    '52_week_high'   => '52_week_high',
-    '52_week_low'    => '52_week_low',
-];
+                'type'   => $typeMap[$key],
 
-// Corresponding fetch functions
-$stockLists = [
-    'day_gainers'    => $topGainers,
-    'day_losers'     => $topLosers,
-    'most_actives'   => $mostActiveValue,
-    '52_week_high'   => $weekHigh,
-    '52_week_low'    => $weekLow,
-];
+                'price'  => $stock['last_price'] 
+                            ?? $stock['ltp'] 
+                            ?? $stock['price'] 
+                            ?? 0,
 
-// Save each stock in DB
-foreach ($screeners as $scr => $type) {
-    foreach ($stockLists[$scr] as $stock) {
-        Stock::create([
-            'symbol' => $stock['symbol'] ?? '',
-            'name' => $stock['shortName'] ?? $stock['longName'] ?? '',
-            'type' => $type,
-            'price' => $stock['regularMarketPrice'] ?? 0,
-            'change_pts' => $stock['regularMarketChange'] ?? 0,
-            'change_percent' => $stock['regularMarketChangePercent'] ?? 0,
-        ]);
+                'change_pts' => $stock['net_change'] 
+                                ?? $stock['change'] 
+                                ?? 0,
+
+                'change_percent' => $stock['changePercent'] 
+                                    ?? $stock['pChange'] 
+                                    ?? $stock['percent_change'] 
+                                    ?? 0,
+            ]
+        );
     }
 }
+    return [
 
-        return view('welcome', compact(
-            'labels',
-            'prices',
-            'niftyPrice',
-            'niftyChange',
-            'sensexPrice',
-            'sensexChange',
-            'marketData',
-            'gainers',
-            'losers',
-            'mostActive',
-            'mostActiveValue',
-    'topGainers',
-    'topLosers',
-    'weekHigh',
-    'weekLow'
-        ));
-    }
+        'labels' => $labels,
+        'prices' => $prices,
+
+        'niftyPrice'   => $niftyQuote['last_price'] ?? 0,
+        'niftyChange'  =>  isset($niftyQuote['net_change'], $niftyQuote['last_price'])
+                    ? round(($niftyQuote['net_change'] / ($niftyQuote['last_price'] - $niftyQuote['net_change'])) * 100, 2)
+                    : 0,
+
+        'sensexPrice'  => $sensexQuote['last_price'] ?? 0,
+        'sensexChange' =>  isset($sensexQuote['net_change'], $sensexQuote['last_price'])
+                    ? round(($sensexQuote['net_change'] / ($sensexQuote['last_price'] - $sensexQuote['net_change'])) * 100, 2)
+                    : 0,
+
+        'marketData' => [
+
+            'NIFTY 50' => [
+                'price' => $niftyQuote['last_price'] ?? 0,
+                'changePercent' => isset($niftyQuote['net_change'], $niftyQuote['last_price'])
+                    ? round(($niftyQuote['net_change'] / ($niftyQuote['last_price'] - $niftyQuote['net_change'])) * 100, 2)
+                    : 0,
+            ],
+
+            'SENSEX' => [
+                'price' => $sensexQuote['last_price'] ?? 0,
+                'changePercent' => isset($sensexQuote['net_change'], $sensexQuote['last_price'])
+                    ? round(($sensexQuote['net_change'] / ($sensexQuote['last_price'] - $sensexQuote['net_change'])) * 100, 2)
+                    : 0,
+            ],
+
+            'NIFTY BANK' => [
+                'price' => $bankNiftyQuote['last_price'] ?? 0,
+                'changePercent' => isset($bankNiftyQuote['net_change'], $bankNiftyQuote['last_price'])
+                    ? round(($bankNiftyQuote['net_change'] / ($bankNiftyQuote['last_price'] - $bankNiftyQuote['net_change'])) * 100, 2)
+                    : 0,
+            ],
+
+            'NIFTY IT' => [
+                'price' => $niftyITQuote['last_price'] ?? 0,
+                'changePercent' => isset($niftyITQuote['net_change'], $niftyITQuote['last_price'])
+                    ? round(($niftyITQuote['net_change'] / ($niftyITQuote['last_price'] - $niftyITQuote['net_change'])) * 100, 2)
+                    : 0,
+            ],
+        ],
+
+        // Market Movers
+     'gainers' => collect(
+    $market->getCustomMarketMovers('gainers')
+)->take(5)->values(),
+
+'losers' => collect(
+    $market->getCustomMarketMovers('losers')
+)->take(5)->values(),
+
+'mostActive' => collect(
+    $market->getCustomMarketMovers('most-active')
+)->take(5)->values(),
+
+        'mostActiveValue' => $market->getCustomMarketMovers('most-active'),
+        'topGainers'      => $market->getCustomMarketMovers('gainers'),
+        'topLosers'       => $market->getCustomMarketMovers('losers'),
+
+        'weekHigh'        => $market->getCustomMarketMovers('52-week-high'),
+        'weekLow'         => $market->getCustomMarketMovers('52-week-low'),
+    ];
+});
+
+return view('welcome', $data);
+
+}
 private function fetchNewsByCategory($category)
 {
     $endpoint = config('services.newsapi.endpoint');
@@ -391,4 +395,16 @@ $data['news'] = $paginatedNews;
    return view('category', compact('category', 'data', 'articles'));
 } 
 
+public function smartMoney(UpstoxMarketService $market)
+{
+    $userId = session('user_id');
+
+    if (!$userId) {
+        return redirect('/signin');   // or /login depending on your route
+    }
+
+    $data = $market->getSmartMoneyTracker();
+ //dd($data);
+    return view('user.smart-money', compact('data'));
+}
 }

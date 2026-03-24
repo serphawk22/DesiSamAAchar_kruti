@@ -48,6 +48,10 @@ return [
     'key' => env('TWELVE_DATA_KEY'),
      ],
 'upstox' => [
-    'access_token' => env('UPSTOX_ACCESS_TOKEN'),
+    'base_url' => env('UPSTOX_BASE_URL'),
+    'token'    => env('UPSTOX_ACCESS_TOKEN'),
+],
+'openai' => [
+    'key' => env('OPENAI_API_KEY'),
 ],
 ];

@@ -4,7 +4,7 @@
 
 <!-- Sidebar -->
 <div id="sidebar" class="sidebar">
-
+<br/><br/>
     <!-- Header -->
     <div class="sidebar-header d-flex justify-content-between align-items-center">
         <h6 class="mb-0 fw-bold">Menu</h6>
@@ -32,6 +32,8 @@
 <div class="sidebar-category">
     <a href="@if($catName === 'markets')
                             {{url('/')}} 
+                        @elseif($catName === 'companies')
+                        {{url('/companies')}}
                         @else
                             {{ route('category.show', ['name' => $cat->name]) }}
                         @endif" 

@@ -22,14 +22,18 @@ class AdminDashboardController extends Controller
             ->count();
 
         // 🔹 Traffic Chart (Last 7 Days Articles Published)
-        $traffic = Articles::select(
-                DB::raw("DATE(created_at) as date"),
-                DB::raw("COUNT(*) as total")
-            )
-            ->whereDate('created_at', '>=', now()->subDays(7))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
+     $traffic = DB::table('activity_logs')
+    ->select(
+        DB::raw("DATE(created_at) as date"),
+        DB::raw("COUNT(DISTINCT user_id) as total")
+    )
+    ->whereDate('created_at', '>=', now()->subDays(7))
+    ->groupBy(DB::raw("DATE(created_at)"))
+    ->orderBy('date')
+    ->get();
+   // dd($traffic);
+    // ✅ NEW: Pending Articles Count
+    $pendingArticles = Articles::where('status', 'pending')->count();
 
         // 🔹 Trending Topics (From Articles Table)
         $trending = Articles::where('is_trending', 1)
@@ -45,6 +49,7 @@ class AdminDashboardController extends Controller
             'activeToday',
             'aiRequests',
             'traffic',
+            'pendingArticles',
             'trending'
         ));
     }

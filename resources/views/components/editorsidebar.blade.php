@@ -19,17 +19,17 @@
         <span>Media Library</span>
     </a>
 
-    <a href="#">
+   <!-- <a href="#">
         <i class="bi bi-robot"></i>
         <span>AI Writing Tools</span>
-    </a>
+    </a>-->
 
     <a href="{{route('comments.index')}}">
         <i class="bi bi-chat-dots"></i>
         <span>Comments</span>
     </a>
 
-    <a href="{{ route('profile.show') }}">
+    <a href="{{route('editor.profile.show')}}">
         <i class="bi bi-person"></i>
         <span>Profile</span>
     </a>

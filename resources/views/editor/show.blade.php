@@ -1,8 +1,32 @@
 @extends('components.app')
 
 @section('content')
+<style>
+
+/* Dark mode normal inputs */
+body.dark .form-control {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+}
+
+/* 🔥 FIX: Disabled & Readonly Inputs */
+body.dark .form-control:disabled,
+body.dark .form-control[readonly] {
+    background-color: #0f172a !important;
+    border: 1px solid #334155;
+    color: #cbd5e1 !important;
+    opacity: 1; /* remove bootstrap faded look */
+}
+
+/* Labels */
+body.dark label {
+    color: #cbd5e1;
+}
+
+</style>
 <div class="card shadow-sm p-4 col-md-6 mx-auto">
-    <h4 class="fw-bold mb-4">My Profile</h4>
+    <h4 class="fw-bold mb-4" style="color:#6f42c1;">My Profile</h4>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -34,7 +58,7 @@
         <div class="mb-3">
             <label>Avatar</label><br>
             @if($user->avatar)
-                <img src="{{ asset($user->avatar) }}" alt="avatar" style="height:80px; margin-bottom:10px;"><br>
+                <img src="{{ asset('images/news/' . $user->avatar) }}" alt="avatar" style="height:80px; margin-bottom:10px;"><br>
             @endif
             <input type="file" name="avatar" class="form-control">
         </div>

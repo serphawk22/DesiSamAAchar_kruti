@@ -52,59 +52,203 @@
 
     </div>
 
-    <!-- TOP SCREENER -->
-    <div class="row g-4">
+  <div class="row g-4 mt-3">
 
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6 class="fw-bold text-success">Top Gainers</h6>
-                    @foreach($gainers as $s)
-                        <div class="d-flex justify-content-between py-1">
-                            <span>{{ $s['symbol'] }}</span>
-                            <span class="text-success">
-                                {{ number_format($s['regularMarketChangePercent'] ?? 0,2) }}%
-                            </span>
-                        </div>
-                    @endforeach
+    <!-- NIFTY 50 -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">Nifty 50 Companies</h5>
+
+                <div class="table-responsive" style="max-height:350px; overflow-y:auto;">
+                    <table class="table table-bordered table-sm">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($niftyStocks as $s)
+                            <tr>
+                                <td>
+                                    {{ $s['name'] }}
+                                    <div class="small text-muted">{{ $s['exchange'] }}</div>
+                                </td>
+
+                                <td>{{ $s['price'] }}</td>
+
+                                <td class="{{ str_contains($s['change'],'-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['change'] }}
+                                </td>
+
+                                <td class="{{ str_contains($s['percent'],'-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['percent'] }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+
+                    </table>
                 </div>
+
             </div>
         </div>
-
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6 class="fw-bold text-danger">Top Losers</h6>
-                    @foreach($losers as $s)
-                        <div class="d-flex justify-content-between py-1">
-                            <span>{{ $s['symbol'] }}</span>
-                            <span class="text-danger">
-                                {{ number_format($s['regularMarketChangePercent'] ?? 0,2) }}%
-                            </span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6 class="fw-bold">Most Active</h6>
-                    @foreach($mostActive as $s)
-                        <div class="d-flex justify-content-between py-1">
-                            <span>{{ $s['symbol'] }}</span>
-                            <span>₹{{ number_format($s['regularMarketPrice'] ?? 0,2) }}</span>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
     </div>
 
-  <div class="container my-4">
+    <!-- SENSEX -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
 
+                <h5 class="fw-bold mb-3">Sensex Companies</h5>
+
+                <div class="table-responsive" style="max-height:350px; overflow-y:auto;">
+                    <table class="table table-bordered table-sm">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($sensexStocks as $s)
+                            <tr>
+                                <td>
+                                    {{ $s['name'] }}
+                                    <div class="small text-muted">{{ $s['exchange'] }}</div>
+                                </td>
+                                <td>{{ $s['price'] ?? 'N/A' }}</td>
+                                <td class="{{ str_contains($s['change'] ?? '', '-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['change'] ?? 'N/A' }}
+                                </td>
+                                <td class="{{ str_contains($s['percent'] ?? '', '-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['percent'] ?? 'N/A' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- SECOND ROW -->
+
+<div class="row g-4 mt-2">
+
+    <!-- BANK NIFTY -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">Bank Nifty Companies</h5>
+
+                <div class="table-responsive" style="max-height:350px; overflow-y:auto;">
+                    <table class="table table-bordered table-sm">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($bankNiftyStocks as $s)
+                            <tr>
+                                <td>
+                                    {{ $s['name'] }}
+                                    <div class="small text-muted">{{ $s['exchange'] }}</div>
+                                </td>
+
+                                <td>{{ $s['price'] }}</td>
+
+                                <td class="{{ str_contains($s['change'],'-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['change'] }}
+                                </td>
+
+                                <td class="{{ str_contains($s['percent'],'-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['percent'] }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- NIFTY IT -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+
+                <h5 class="fw-bold mb-3">Nifty IT Companies</h5>
+
+                <div class="table-responsive" style="max-height:350px; overflow-y:auto;">
+                    <table class="table table-bordered table-sm">
+
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Name</th>
+                                <th>Price</th>
+                                <th>Change</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        @foreach($niftyITStocks as $s)
+                            <tr>
+                                <td>
+                                    {{ $s['name'] }}
+                                    <div class="small text-muted">{{ $s['exchange'] }}</div>
+                                </td>
+
+                                <td>{{ $s['price'] }}</td>
+
+                                <td class="{{ $s['change'] < 0 ? 'text-danger':'text-success' }}">
+                                    {{ $s['change'] }}
+                                </td>
+
+                                <td class="{{ str_contains($s['percent'],'-') ? 'text-danger':'text-success' }}">
+                                    {{ $s['percent'] }}
+                                </td>
+                            </tr>
+                        @endforeach
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+ 
+  <div class="container my-4">
     <div class="row">
         <div class="col-lg-12">
 
@@ -113,8 +257,9 @@
 
                     <h5 class="fw-bold mb-4">Latest Market News</h5>
 
-                    @forelse($marketNews as $news)
-                        <div class="mb-3 border-bottom pb-3">
+                    @forelse($marketNews as $index => $news)
+
+                        <div class="mb-3 border-bottom pb-3 {{ $index >= 5 ? 'extra-news d-none' : '' }}">
                             <a href="{{ route('news.show', urlencode($news['title'])) }}"  
                                class="fw-semibold text-decoration-none text-dark d-block">
                                 {{ $news['title'] }}
@@ -124,19 +269,25 @@
                                 {{ \Carbon\Carbon::parse($news['publishedAt'])->diffForHumans() }}
                             </div>
                         </div>
+
                     @empty
                         <p class="text-muted">No Market News Available</p>
                     @endforelse
+
+                    @if(count($marketNews) > 5)
+                        <div class="text-end mt-3">
+                            <a href="javascript:void(0)" id="loadMoreNews" 
+                               class="fw-semibold text-primary text-decoration-none">
+                                View More News →
+                            </a>
+                        </div>
+                    @endif
 
                 </div>
             </div>
 
         </div>
     </div>
-
-</div>
-
-
 
 </div>
 
@@ -177,5 +328,22 @@ new Chart(document.getElementById('sensexChart'), {
 });
 @endif
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function(){
 
+    const btn = document.getElementById("loadMoreNews");
+
+    if(btn){
+        btn.addEventListener("click", function(){
+
+            document.querySelectorAll(".extra-news").forEach(function(el){
+                el.classList.remove("d-none");
+            });
+
+            btn.style.display = "none";
+        });
+    }
+
+});
+</script>
 @endsection

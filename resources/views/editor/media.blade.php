@@ -1,6 +1,85 @@
 @extends('components.app')
 
 @section('content')
+<style>
+
+/* Modal Background */
+body.dark .modal-content {
+    background-color: #0f172a;  /* Deep dark */
+    color: #e2e8f0;
+    border: 1px solid #1e293b;
+}
+
+/* Header */
+body.dark .modal-header {
+    border-bottom: 1px solid #1e293b;
+}
+
+body.dark .modal-title {
+    color: #f1f5f9;
+}
+
+/* Body */
+body.dark .modal-body {
+    background-color: #0f172a;
+}
+
+/* Footer */
+body.dark .modal-footer {
+    border-top: 1px solid #1e293b;
+}
+
+/* Labels */
+body.dark .modal label {
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+/* Inputs & Selects */
+body.dark .modal .form-control,
+body.dark .modal select,
+body.dark .modal textarea {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+}
+body.dark .modal .form-control:focus,
+body.dark .modal select:focus,
+body.dark .modal textarea:focus {
+    background-color: #1e293b;
+    border-color: #2563eb;
+    box-shadow: none;
+    color: #fff;
+}
+
+/* Placeholder */
+body.dark .modal .form-control::placeholder,
+body.dark .modal textarea::placeholder {
+    color: #94a3b8;
+}
+
+/* Select dropdown arrow fix */
+body.dark .modal select {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+
+/* Close button */
+body.dark .btn-close {
+    filter: invert(1);
+}
+
+/* Media Preview Box */
+body.dark #mediaContainer img {
+    border: 1px solid #334155;
+    border-radius: 6px;
+}
+
+/* Modal backdrop darker */
+body.dark .modal-backdrop.show {
+    background-color: #000;
+    opacity: 0.8;
+}</style>
 <div class="card shadow-sm p-4">
     @if(session('success'))
     <div class="alert alert-success">
@@ -62,7 +141,7 @@
             </tr>
 
             <!-- Edit Modal -->
-            <div class="modal fade" id="editMediaModal{{ $media->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal fade" id="editMediaModal{{ $media->id }}" tabindex="-1" aria-hidden="true"><br/><br/>
                 <div class="modal-dialog">
                     <form action="{{ route('media.update', $media->id) }}" method="POST" enctype="multipart/form-data">
                         @csrf

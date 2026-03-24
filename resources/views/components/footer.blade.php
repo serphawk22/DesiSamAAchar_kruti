@@ -18,10 +18,10 @@
                 <div class="col-md-2 mb-3">
                     <h6 class="fw-semibold">Markets</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="#" class="text-muted text-decoration-none">NIFTY 50</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Sensex</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Top Gainers</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Top Losers</a></li>
+                        <li><a href="{{ route('sensex.index') }}" class="text-muted text-decoration-none">NIFTY 50/Sensex</a></li>
+                        <li><a href="{{ url('/stock-news') }} " class="text-muted text-decoration-none">Stocks</a></li>
+                        <li><a href="{{url('/')}}" class="text-muted text-decoration-none">Top Gainers</a></li>
+                        <li><a href="{{url('/')}}" class="text-muted text-decoration-none">Top Losers</a></li>
                     </ul>
                 </div>
 
@@ -29,10 +29,10 @@
                 <div class="col-md-3 mb-3">
                     <h6 class="fw-semibold">Categories</h6>
                     <ul class="list-unstyled small">
-                        <li><a href="#" class="text-muted text-decoration-none">Business</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Wealth</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Startups & Tech</a></li>
-                        <li><a href="#" class="text-muted text-decoration-none">Industry & Energy</a></li>
+                        <li><a href="{{ route('category.show', ['name' => 'business']) }}" class="text-muted text-decoration-none">Business</a></li>
+                        <li><a href="{{ route('category.show', ['name' => 'wealth']) }}" class="text-muted text-decoration-none">Wealth</a></li>
+                        <li><a href="{{ route('category.show', ['name' => 'Startups & Tech']) }}" class="text-muted text-decoration-none">Startups & Tech</a></li>
+                        <li><a href="{{ route('category.show', ['name' => 'Industry & Energy']) }}" class="text-muted text-decoration-none">Industry & Energy</a></li>
                     </ul>
                 </div>
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title> NiftyNews - Login</title>
+    <title> DesiSamAAchar - Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     {{-- Bootstrap 5 --}}
@@ -132,9 +132,9 @@
         {{ session('error') }}
     </div>
 @endif
-        <div class="brand-title">
-            Nifty<span>News</span>
-        </div>
+      <a href="{{url('/')}}" class="text-decoration-none">  <div class="brand-title">
+            Desi<span>SamAAchar</span>
+        </div></a>
         <p class="text-muted mt-2">
             Welcome back! Please login to your account.
         </p>

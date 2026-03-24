@@ -1,6 +1,11 @@
 @extends('components.app')
 
 @section('content')
+<style>
+    body.dark .form-select{
+        background-color: #1e293b;
+    }
+</style>
 <div class="card shadow-sm p-4">
     <h4 class="fw-bold mb-4">Article Comments</h4>
 
@@ -27,6 +32,7 @@
                 <tr>
                     <th>User</th>
                     <th>Comment</th>
+                    <th>Views</th>
                     <th>Status</th>
                     <th>Posted At</th>
                 </tr>
@@ -36,12 +42,13 @@
                     <tr>
                         <td>{{ $comment->user->name ?? 'Unknown' }}</td>
                         <td>{{ $comment->content }}</td>
+                        <td>{{ $article->views ?? 0 }}</td>
                         <td>{{ $comment->status ? 'Visible' : 'Hidden' }}</td>
                         <td>{{ $comment->created_at->format('d M Y, H:i') }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center">No comments for this article.</td>
+                        <td colspan="5" class="text-center">No comments for this article.</td>
                     </tr>
                 @endforelse
             </tbody>

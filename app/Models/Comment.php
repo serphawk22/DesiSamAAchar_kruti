@@ -10,6 +10,8 @@ class Comment extends Model
     protected $table = 'comments';
     protected $fillable = ['article_id', 'user_id', 'parent_id', 'content', 'status'];
 
+     public $timestamps = false; // ✅ ADD THIS LINE
+
     public function user() {
         return $this->belongsTo(Users::class);
     }

@@ -25,9 +25,9 @@ class AppServiceProvider extends ServiceProvider
 
             $fixedCategories = [
             ['name' => 'Markets',   'url' => url('/')],
-            ['name' => 'Companies', 'url' => url('/')],
+            ['name' => 'Companies', 'url' => url('/companies')],
             ['name' => 'News',      'url' => url('/news')],
-            ['name' => 'Calculators','url' => url('/')],
+            ['name' => 'Calculators','url' => url('/calculators')],
         ];
         
           // Attach subcategories to fixed categories if they exist in DB

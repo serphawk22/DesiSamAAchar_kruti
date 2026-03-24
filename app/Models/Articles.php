@@ -8,6 +8,7 @@ use App\Models\Subcatagory;
 use App\Models\Users;
 use App\Models\Comment;
 use App\Models\ArticleMedia;
+use App\Models\Bookmark;
 class Articles extends Model
 {
     protected $table = 'articles';
@@ -59,4 +60,8 @@ class Articles extends Model
  public function comments() {
         return $this->hasMany(Comment::class);
     }
+    public function bookmarks()
+{
+    return $this->hasMany(Bookmark::class, 'article_id');
+}
 }

@@ -19,6 +19,7 @@ class CommentController extends Controller
         $selectedArticleId = $request->get('article_id');
 
         $comments = [];
+         $article = null;
         if ($selectedArticleId) {
             // Ensure the article belongs to this editor
             $article = Articles::where('id', $selectedArticleId)
@@ -34,6 +35,6 @@ class CommentController extends Controller
             }
         }
 
-        return view('editor.comments', compact('articles', 'comments', 'selectedArticleId'));
+        return view('editor.comments', compact('articles', 'comments', 'selectedArticleId','article'));
     }
 }

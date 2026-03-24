@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
+use App\Services\UpstoxMarketService;
+use Illuminate\Support\Facades\Http;
 
 class StockNewsController extends Controller
 {
-   private $equityMap = [];
+    private array $equityMap = [];
+    private UpstoxMarketService $market;
 
-    public function __construct()
+    public function __construct(UpstoxMarketService $market)
     {
+        $this->market = $market;
         $this->equityMap = $this->loadEquityCsv();
     }
 
@@ -29,33 +32,31 @@ class StockNewsController extends Controller
 
         $news = $response->json()['articles'] ?? [];
 
-       $filtered = collect($news)->map(function ($article) {
+        $filtered = collect($news)->map(function ($article) {
+            $title = strtoupper($article['title'] ?? '');
+            $symbolData = $this->matchSymbolFromTitle($title);
 
-    $title = strtoupper($article['title'] ?? '');
-    $symbolData = $this->matchSymbolFromTitle($title);
+            if ($symbolData) {
+                $article['symbol'] = $symbolData['symbol'];
+                $article['instrument_key'] = "NSE_EQ|" . $symbolData['isin'];
+                return $article;
+            }
 
-    if ($symbolData) {
-        $article['symbol'] = $symbolData['symbol'];
-        $article['instrument_key'] = "NSE_EQ|" . $symbolData['isin'];
-        return $article;
-    }
+            return null;
+        })->filter()->values();
 
-    return null;
+        $page = request()->get('page', 1);
+        $perPage = 10;
 
-})->filter()->values();
+        $paginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $filtered->forPage($page, $perPage),
+            $filtered->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
 
-$page = request()->get('page', 1);
-$perPage = 10;
-
-$paginated = new \Illuminate\Pagination\LengthAwarePaginator(
-    $filtered->forPage($page, $perPage),
-    $filtered->count(),
-    $perPage,
-    $page,
-    ['path' => request()->url(), 'query' => request()->query()]
-);
-
-return view('stock-news', ['news' => $paginated]);
+        return view('stock-news', ['news' => $paginated]);
     }
 
     public function analyse(Request $request)
@@ -76,7 +77,8 @@ return view('stock-news', ['news' => $paginated]);
 
         $instrumentKey = "NSE_EQ|" . $symbolData['isin'];
 
-        $candles = $this->getUpstoxData($instrumentKey);
+        // ✅ Use UpstoxMarketService to get candles instead of raw HTTP
+        $candles = $this->market->getIntradayCandles($instrumentKey);
 
         if (empty($candles)) {
             return response()->json([
@@ -88,7 +90,6 @@ return view('stock-news', ['news' => $paginated]);
         }
 
         $impact = $this->calculateImpact($candles);
-
         $impact['sentiment'] = $this->getSentiment($title);
         $impact['future_outlook'] = $this->futurePrediction(
             $impact['volume_spike'],
@@ -100,7 +101,7 @@ return view('stock-news', ['news' => $paginated]);
 
     /* ========================================================= */
 
-    private function loadEquityCsv()
+    private function loadEquityCsv(): array
     {
         $path = app_path('EQUITY_L.csv');
 
@@ -112,7 +113,6 @@ return view('stock-news', ['news' => $paginated]);
         $header = array_shift($rows);
 
         $data = [];
-
         foreach ($rows as $row) {
             $data[] = [
                 'symbol' => strtoupper(trim($row[0])),
@@ -127,37 +127,17 @@ return view('stock-news', ['news' => $paginated]);
     private function matchSymbolFromTitle($title)
     {
         foreach ($this->equityMap as $stock) {
-
-            if (
-                str_contains($title, $stock['symbol']) ||
-                str_contains($title, $stock['name'])
-            ) {
+            if (str_contains($title, $stock['symbol']) || str_contains($title, $stock['name'])) {
                 return $stock;
             }
         }
-
         return null;
     }
 
-    private function getUpstoxData($symbol)
-    {
-        $to   = now()->format('Y-m-d');
-        $from = now()->subDays(7)->format('Y-m-d');
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env('UPSTOX_ACCESS_TOKEN'),
-        ])->get("https://api.upstox.com/v2/historical-candle/$symbol/day/$to/$from");
-
-        return $response->json()['data']['candles'] ?? [];
-    }
-
-    private function calculateImpact($candles)
+    private function calculateImpact(array $candles): array
     {
         if (count($candles) < 2) {
-            return [
-                'volume_spike' => false,
-                'price_change_percent' => 0,
-            ];
+            return ['volume_spike' => false, 'price_change_percent' => 0];
         }
 
         $latest = $candles[0];

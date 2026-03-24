@@ -1,7 +1,95 @@
 @extends('components.app')
 
 @section('content')
+<style>
 
+/* Modal Background */
+body.dark .modal-content {
+    background-color: #0f172a;  /* Deep dark */
+    color: #e2e8f0;
+    border: 1px solid #1e293b;
+}
+
+/* Header */
+body.dark .modal-header {
+    border-bottom: 1px solid #1e293b;
+}
+
+body.dark .modal-title {
+    color: #f1f5f9;
+}
+
+/* Body */
+body.dark .modal-body {
+    background-color: #0f172a;
+}
+
+/* Footer */
+body.dark .modal-footer {
+    border-top: 1px solid #1e293b;
+}
+
+/* Labels */
+body.dark .modal label {
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+/* Inputs & Selects */
+body.dark .modal .form-control,
+body.dark .modal select,
+body.dark .modal textarea {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+}
+
+body.dark .modal .form-control:focus,
+body.dark .modal select:focus,
+body.dark .modal textarea:focus {
+    background-color: #1e293b;
+    border-color: #2563eb;
+    box-shadow: none;
+    color: #fff;
+}
+
+/* Placeholder */
+body.dark .modal .form-control::placeholder,
+body.dark .modal textarea::placeholder {
+    color: #94a3b8;
+}
+
+/* Select dropdown arrow fix */
+body.dark .modal select {
+    background-color: #1e293b;
+    color: #f1f5f9;
+}
+#aiResult{
+    background-color:#f8f9fa;
+}
+
+body.dark #aiResult{
+    background-color:#1e293b;
+    color:#f1f5f9; 
+}
+/* Close button */
+body.dark .btn-close {
+    filter: invert(1);
+}
+
+/* Media Preview Box */
+body.dark #mediaContainer img {
+    border: 1px solid #334155;
+    border-radius: 6px;
+}
+
+/* Modal backdrop darker */
+body.dark .modal-backdrop.show {
+    background-color: #000;
+    opacity: 0.8;
+}
+
+</style>
 <div class="card shadow-sm p-4">
 @if(session('success'))
     <div class="alert alert-success">
@@ -88,7 +176,7 @@ Edit
 
 
 <!-- Modal -->
-<div class="modal fade" id="articleModal">
+<div class="modal fade" id="articleModal"><br/><br/>
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
@@ -121,9 +209,22 @@ Edit
                         </div>
 
                         <div class="col-md-12">
-                            <label>Title</label>
-                            <input type="text" name="title" class="form-control">
+                        <label>Title</label>
+                        <div class="input-group">
+                        <input type="text" name="title" id="titleInput" class="form-control" style=" box-shadow: none !important;border-color: #2563eb;">
+                        <button type="button" id="aiSuggestBtn" class="btn btn-dark h-100">
+                        🤖 AI Suggest
+                        </button>
                         </div>
+                        </div>
+
+                         <div class="col-md-12">
+                            <label>🤖 AI Writing Suggestions</label>
+
+                            <div id="aiResult" class="p-3 border rounded" style="min-height:120px">
+                            AI suggestions will appear here...
+                            </div>
+                            </div>
 
                         <div class="col-md-12">
                             <label>Short Description</label>
@@ -307,4 +408,58 @@ function deleteMedia(id) {
     })
     .then(res => location.reload());
 }
+</script>
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+let btn = document.getElementById("aiSuggestBtn");
+
+if(!btn) return;
+
+btn.addEventListener("click", function(){
+
+let title = document.getElementById("titleInput").value;
+
+if(title.trim() === ""){
+alert("Enter article topic first");
+return;
+}
+
+document.getElementById("aiResult").innerHTML = "Generating AI suggestions...";
+
+fetch("{{ route('editor.ai.generate') }}", {
+
+method: "POST",
+
+headers: {
+"Content-Type": "application/json",
+"X-CSRF-TOKEN": "{{ csrf_token() }}"
+},
+
+body: JSON.stringify({
+prompt: title
+})
+
+})
+.then(response => response.json())
+.then(data => {
+
+document.getElementById("aiResult").innerHTML =
+"<pre>"+data.content+"</pre>";
+
+})
+.catch(error => {
+
+document.getElementById("aiResult").innerHTML =
+"AI error occurred";
+
+console.error(error);
+
+});
+
+});
+
+});
+
 </script>

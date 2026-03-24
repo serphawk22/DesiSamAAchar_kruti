@@ -24,7 +24,7 @@ class EditorDashboardController extends Controller
         // Drafts
         $drafts = DB::table('articles')
             ->where('author_id', $editorId)
-            ->where('status', 'draft')
+            ->where('status', 'pending')
             ->count();
 
         // Total Views

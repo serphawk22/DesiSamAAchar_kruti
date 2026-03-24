@@ -83,7 +83,7 @@
 </div>
 
             <div class="col-md-9">
-                <h5 class="news-title">{{ $item['title'] }}</h5>
+              <a href="{{ route('news.show', urlencode($item['title'])) }}" class="text-decoration-none"> <h5 class="news-title">{{ $item['title'] }}</h5>
                 <small class="text-muted">
                     {{ $item['source']['name'] }} • 
                     {{ \Carbon\Carbon::parse($item['publishedAt'])->format('d M Y H:i') }}

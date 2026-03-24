@@ -27,9 +27,8 @@
 
         @if(request('status'))
             <input type="hidden" name="status" value="{{ request('status') }}">
-        @endif
-
-        <button class="btn btn-primary">Search</button>
+        @endif  
+        <button class="btn btn-primary h-100">Search</button>
 
         @if(request('search'))
             <a href="{{ route('admin.users') }}"

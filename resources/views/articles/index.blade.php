@@ -71,7 +71,7 @@
                     <div class="card-body">
 
                         <h5 class="card-title">
-                            <a href="{{ route('articles.show', $article->slug) }}" class="text-decoration-none" style="color:#6f42c1;">
+                            <a href="{{ route('articles.show', $article->title) }}" class="text-decoration-none" style="color:#6f42c1;">
                                 {{ $article->title }}
                             </a>
                         </h5>

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Session;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -59,12 +60,19 @@ class AuthController extends Controller
     ]);
 
     // ✅ Find user
-    $user = Users::where('email', $request->email)->first();
+  $user = Users::where('email', $request->email)->first();
 
-    // ✅ Check password
-    if (!$user || !Hash::check($request->password, $user->password)) {
+if (!$user) {
+    return back()->with('error', 'Invalid Credentials')->withInput();
+}
+
+try {
+    if (!Hash::check($request->password, $user->password)) {
         return back()->with('error', 'Invalid Credentials')->withInput();
     }
+} catch (\Exception $e) {
+    return back()->with('error', 'Invalid Credentials')->withInput();
+}
 /* Remember Me Logic */
     if ($request->has('remember')) {
         // 30 days session
@@ -85,6 +93,14 @@ class AuthController extends Controller
     // ✅ Update Last Login
     $user->update([
         'last_login' => now()
+    ]); 
+
+    // ✅ 🔥 INSERT LOGIN ACTIVITY LOG
+    DB::table('activity_logs')->insert([
+        'user_id' => $user->id,
+        'action'  => $user->role . ' logged in',
+        'ip'      => $request->ip(),
+        'created_at' => now(),
     ]);
 
     // ✅ Redirect Based on Role

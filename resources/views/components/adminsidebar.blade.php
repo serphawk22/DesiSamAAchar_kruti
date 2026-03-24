@@ -28,7 +28,10 @@
         <i class="bi bi-images"></i>
         <span>Media Library</span>
     </a>
-
+ <a href="#">
+        <i class="bi bi-shield-lock"></i>
+        <span>Security & Logs</span>
+    </a>
     <a href="#">
         <i class="bi bi-robot"></i>
         <span>AI Center</span>
@@ -39,24 +42,14 @@
         <span>Comments</span>
     </a>
 
-    <a href="{{ route('admin.reports.dashboard') }}">
+    <a href="{{ route('admin.reports') }}">
         <i class="bi bi-bar-chart"></i>
         <span>Analytics & Reports</span>
     </a>
 
-    <a href="#">
+    <a href="{{route('admin.profile')}}">
         <i class="bi bi-gear"></i>
         <span>Profile</span>
-    </a>
-
-    <a href="#">
-        <i class="bi bi-shield-lock"></i>
-        <span>Security & Logs</span>
-    </a>
-
-    <a href="#">
-        <i class="bi bi-hdd"></i>
-        <span>Backup & System</span>
     </a>
 
     <a href="{{ route('logout') }}" class="text-danger">

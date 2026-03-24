@@ -1,7 +1,61 @@
 @extends('components.app')
 
 @section('content')
+<style>
+/* Modal Background */
+body.dark .modal-content {
+    background-color: #1e293b;   /* Dark slate */
+    color: #f1f5f9;              /* Light text */
+    border: 1px solid #334155;
+}
 
+/* Header */
+body.dark .modal-header {
+    border-bottom: 1px solid #334155;
+}
+
+/* Footer */
+body.dark .modal-footer {
+    border-top: 1px solid #334155;
+}
+
+/* Labels */
+body.dark .modal label {
+    color: #cbd5e1;
+}
+
+/* Inputs */
+body.dark .modal .form-control {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    color: #f1f5f9;
+}
+
+body.dark .modal .form-control:focus {
+    background-color: #0f172a;
+    border-color: #2563eb;
+    box-shadow: none;
+    color: #fff;
+}
+
+/* Placeholder */
+body.dark .modal .form-control::placeholder {
+    color: #94a3b8;
+}
+
+/* Buttons */
+
+
+body.dark .modal .btn-success {
+    background-color: #16a34a;
+    border-color: #16a34a;
+}
+
+/* Close button (if added later) */
+body.dark .btn-close {
+    filter: invert(1);
+}
+</style>
 <div class="container mt-4">
 
     <div class="d-flex justify-content-between mb-3">
@@ -26,7 +80,7 @@
              class="list-group position-absolute w-100"
              style="z-index:1000; top:100%; left:0;"></div>
 
-        <button class="btn btn-primary">Search</button>
+        <button class="btn btn-primary h-100">Search</button>
 
         @if(request('search'))
             <a href="{{ route('admin.categories') }}"
@@ -160,7 +214,7 @@
         {{ $categories->links('pagination::bootstrap-5') }}
     </div>
     <!-- Modal -->
-<div class="modal fade" id="addCategoryModal">
+<div class="modal fade" id="addCategoryModal"><br/><br/><br/><br/>
     <div class="modal-dialog modal-lg">
         <form method="POST" action="{{ route('admin.categories.store') }}">
             @csrf

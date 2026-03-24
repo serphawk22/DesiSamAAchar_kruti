@@ -28,7 +28,7 @@
                             <div class="card-body">
                                 <h5 class="card-title">{{ $news['title'] }}</h5>
                                 <p class="card-text">{{ $news['description'] }}</p>
-                                <a href="{{ route('news.show', urlencode($news['title'])) }}" target="_blank" class="btn btn-sm btn-purple">Read More</a>
+                                <a href="{{ route('news.show', urlencode($news['title'])) }}" class="btn btn-sm btn-purple">Read More</a>
                                 <p class="card-text"><small class="text-muted">{{ \Carbon\Carbon::parse($news['publishedAt'])->diffForHumans() }}</small></p>
                             </div>
                         </div>
@@ -161,7 +161,9 @@ a:hover {
     color: #6f42c1;
     text-decoration: underline;
 }
-
+.card-title{
+    color: #6f42c1;
+}
 /* Make cards same height */
 .card {
     min-height: 180px;

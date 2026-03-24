@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>StockMarket - Sign Up</title>
+    <title>DesiSamAAchar - Sign Up</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap 5 -->
@@ -110,10 +110,10 @@
 <div class="d-flex align-items-center justify-content-center auth-wrapper">
     <div class="auth-card">
 
-        <!-- Logo / Title -->
+        <!-- Logo / Title --><a href="{{url('/')}}" class="text-decoration-none">
         <h2 class="text-center mb-2 brand-title">
-            Nifty<span>News</span>
-        </h2>
+            Desi<span>SamAAchar</span>
+        </h2></a>
         <p class="text-center text-muted mb-4">
             Create your account to get started.
         </p>

@@ -3,17 +3,15 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MarketController;
 use App\Http\Controllers\IndexController; 
-use App\Http\Controllers\SensexController;
-use App\Http\Controllers\IPOController;
+use App\Http\Controllers\SensexController; 
 use App\Http\Controllers\NewsController;  
 use App\Http\Controllers\ArticleController;   
 use App\Http\Controllers\StockNewsController;
 use App\Http\Controllers\SIPController;
-use App\Http\Controllers\CurrencyController;
-use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\CurrencyController; 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EditorDashboardController;
-use App\Http\Controllers\EditorArticleController;
+use App\Http\Controllers\EditorArticleController; 
 use App\Http\Controllers\ArticleMediaController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
@@ -22,9 +20,43 @@ use App\Http\Controllers\AdminUserManagementController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\AdminCommentController;
+use App\Http\Controllers\AdminReportController;
+use App\Http\Controllers\AdminProfileController; 
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\UserDashboardController;
+use App\Http\Controllers\StockController; 
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\BookmarkController;
+use App\Http\Controllers\StocklikedController;
+use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\AIController;  
+use App\Http\Controllers\RecommendationController;  
 
-Route::get('/company', [CompanyController::class, 'index'])->name('company');
-Route::get('/company/search', [CompanyController::class, 'search'])->name('company.search');
+Route::get('/user/smart-money', [MarketController::class, 'smartMoney'])
+    ->name('user.smart-money');
+
+Route::get('/user/recommendations', [RecommendationController::class,'index'])
+    ->name('user.recommendations');
+
+Route::get('/notifications/news', [NewsController::class,'notifications'])
+    ->name('news.notifications');
+
+Route::post('/editor/ai/generate', [AIController::class,'generate'])
+    ->name('editor.ai.generate');
+    
+Route::post('/chatbot/ask', [ChatbotController::class, 'ask'])->name('chatbot.ask');
+
+Route::get('/companies', [CompanyController::class, 'home'])->name('home');
+
+Route::get('/calculators', function () {
+    return view('calculator');
+});
+Route::get('/company/{symbol}', [CompanyController::class, 'show'])
+    ->name('company.show');
+
+Route::get('/suggest', [CompanyController::class, 'suggest'])
+    ->name('company.suggest');
 
 Route::get('/currency', [CurrencyController::class, 'index'])->name('currency.index');
 Route::get('/sips', [SIPController::class, 'index'])->name('sips.index');
@@ -34,13 +66,11 @@ Route::post('/analyse-news', [StockNewsController::class, 'analyse']);
 
 Route::get('/', function () {
     return view('welcome');
-});
-Route::get('/', [HomeController::class, 'index'])->name('home'); 
+}); 
 Route::get('/', [MarketController::class, 'home']);
 // routes/web.php
 Route::get('/category/{name}', [MarketController::class, 'category'])->name('category.show'); 
-Route::get('/sensex', [SensexController::class, 'index'])->name('sensex.index'); 
-Route::get('/ipo', [IPOController::class, 'index'])->name('ipo.index');  
+Route::get('/sensex', [SensexController::class, 'index'])->name('sensex.index');  
 Route::get('/news', [NewsController::class, 'index'])->name('news.index');
 Route::get('/news/{title}', [NewsController::class, 'show'])->name('news.show');
 Route::get('/editor-articles', [ArticleController::class, 'index'])
@@ -63,13 +93,6 @@ if (session('user_role') !== 'editor') {
 }
 return view('editor.dashboard');
 })->name('editor.dashboard');
-
-Route::get('/user/dashboard', function () {
-    if (!session()->has('user_id')) {
-        return redirect('/login');
-    }
-    return view('user.dashboard');
-})->name('user.dashboard');
 
 Route::get('/admin/dashboard', function () {
     if (session('user_role') !== 'admin') {
@@ -104,8 +127,8 @@ Route::get('/editor/media', [ArticleMediaController::class, 'index'])->name('edi
 Route::delete('/amedia/{id}', [ArticleMediaController::class, 'destroy'])->name('media.destroy');
 Route::put('/amedia/{id}', [ArticleMediaController::class, 'update'])->name('media.update');
 Route::get('/editor/comments', [CommentController::class, 'index'])->name('comments.index');
-Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
+Route::get('/editor/profile', [ProfileController::class, 'show'])->name('editor.profile.show');
+Route::post('/profile', [ProfileController::class, 'update'])->name('editor.profile.update');
 
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])
     ->name('admin.dashboard');
@@ -124,7 +147,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/users/block/{id}', [AdminUserManagementController::class, 'block'])
         ->name('admin.users.block');
 
-    Route::get('/users/activity/{id}', [AdminUserManagementController::class, 'activity'])
+    Route::post('/users/activity/{id}', [AdminUserManagementController::class, 'activity'])
         ->name('admin.users.activity');
 
      Route::get('/content', [ContentController::class, 'index'])
@@ -173,8 +196,38 @@ Route::delete('/subcategories/delete/{id}', [CategoryController::class, 'destroy
     Route::post('/users/ban/{id}', [AdminCommentController::class, 'banUser'])
         ->name('admin.users.ban');
 
-    Route::get('/reports-dashboard', 
-    [AdminReportController::class, 'index']
-)->name('admin.reports.dashboard');
+   Route::get('/reports', [AdminReportController::class, 'index'])->name('admin.reports');
+Route::get('/reports/export', [AdminReportController::class, 'export'])->name('admin.reports.export');
+
+Route::get('/profile', [AdminProfileController::class, 'index'])->name('admin.profile');
+Route::post('/profile/update', [AdminProfileController::class, 'update'])->name('admin.profile.update'); 
 
 });
+Route::get('/user/dashboard', [UserDashboardController::class, 'index'])
+    ->name('user.dashboard'); 
+
+Route::post('/articles/bookmark-toggle', [ArticleController::class, 'toggleBookmark'])
+     ->name('articles.bookmark.toggle');
+Route::post('/articles/comment/add', [ArticleController::class, 'addComment'])
+    ->name('articles.comment.add');
+
+Route::get('/watchlist', [StockController::class, 'index'])->name('stocks.index');
+
+Route::post('/stocks/toggle-watchlist', 
+    [StockController::class, 'toggle']
+)->name('stocks.toggle');
+ 
+ Route::get('/user/interests', [ActivityController::class, 'index'])
+    ->name('user.interests');
+Route::post('/user/interests/store', [ActivityController::class, 'store'])
+    ->name('user.interests.store');
+ 
+Route::get('/my-bookmarks', [BookmarkController::class, 'bookmarks'])
+    ->name('user.bookmarks');
+Route::get('/liked-stocks', [StocklikedController::class, 'index'])
+    ->name('stocks.liked'); 
+
+     Route::get('/profile', [UserProfileController::class, 'index'])->name('profile.index');
+    Route::post('/profile/update', [UserProfileController::class, 'update'])->name('profile.update');
+
+Route::post('/analyse-news', [NewsController::class, 'analyse'])->name('news.analyse');

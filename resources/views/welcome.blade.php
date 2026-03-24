@@ -1,7 +1,11 @@
 @extends('components.app')
 
 @section('content')
-
+<style>
+a{
+    color:black;
+}
+    </style>
  
 <div class="main-content">
 <!-- ================= MAIN CONTAINER ================= -->
@@ -24,8 +28,7 @@
                         <span class="fs-5 {{ $niftyChange >= 0 ? 'text-success' : 'text-danger' }}">
                             ({{ number_format($niftyChange,2) }}%)
                         </span>
-                    </h2>
-
+                    </h2> 
                     <div style="height:400px;">
                         <canvas id="chart"></canvas>
                     </div>
@@ -48,14 +51,16 @@
             </h6>
 
             @forelse($gainers as $stock)
+            <a href="{{ route('company.show', $stock['symbol']) }}" 
+                                   class="text-decoration-none">
                 <div class="d-flex justify-content-between border-bottom py-2">
                     <span class="small">
                         {{ $stock['shortName'] ?? $stock['symbol'] }}
                     </span>
                     <span class="small text-success">
-                        {{ number_format($stock['regularMarketChangePercent'] ?? 0,2) }}%
+                        {{ number_format($stock['changePercent'] ?? 0,2) }}%
                     </span>
-                </div>
+                </div></a>
             @empty
                 <p class="text-muted small mb-0">No data available</p>
             @endforelse
@@ -72,14 +77,16 @@
             </h6>
 
             @forelse($losers as $stock)
+             <a href="{{ route('company.show', $stock['symbol']) }}" 
+                                   class="text-decoration-none">
                 <div class="d-flex justify-content-between border-bottom py-2">
                     <span class="small">
                         {{ $stock['shortName'] ?? $stock['symbol'] }}
                     </span>
                     <span class="small text-danger">
-                        {{ number_format($stock['regularMarketChangePercent'] ?? 0,2) }}%
+                        {{ number_format($stock['changePercent'] ?? 0,2) }}%
                     </span>
-                </div>
+                </div></a>
             @empty
                 <p class="text-muted small mb-0">No data available</p>
             @endforelse
@@ -95,6 +102,8 @@
 
     <!-- Market Snapshot -->
     <div class="card shadow-sm mb-4">
+         <a href="{{ route('sensex.index') }}" 
+                                   class="text-decoration-none">
         <div class="card-body">
 
             <h6 class="fw-bold border-bottom pb-2 mb-3">
@@ -111,7 +120,7 @@
                 </tr>
             </table>
 
-        </div>
+        </div></a>
     </div>
 
     <!-- Most Active -->
@@ -123,14 +132,16 @@
             </h6>
 
             @forelse($mostActive as $stock)
+             <a href="{{ route('company.show', $stock['symbol']) }}" 
+                                   class="text-decoration-none">
                 <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                    <span class="small fw-medium">
-                        {{ $stock['shortName'] ?? $stock['symbol'] }}
+                  <span class="small fw-medium">   
+                        {{ $stock['shortName'] ?? $stock['symbol'] }} 
                     </span>
                     <span class="small">
-                        ₹{{ number_format($stock['regularMarketPrice'] ?? 0,2) }}
+                        ₹{{ number_format($stock['changePercent'] ?? 0,2) }}
                     </span>
-                </div>
+                </div></a>
             @empty
                 <p class="text-muted small mb-0">No data available</p>
             @endforelse
@@ -155,8 +166,9 @@
         @foreach($marketData as $name => $data)
 
             <div class="col-lg-3 col-md-6">
-
                 <div class="card shadow-sm h-100">
+                     <a href="{{ route('sensex.index') }}" 
+                                   class="text-decoration-none">
                     <div class="card-body">
 
                         <h6 class="fw-bold mb-2">
@@ -171,7 +183,7 @@
                             {{ number_format($data['changePercent'],2) }}%
                         </span>
 
-                    </div>
+                    </div></a>
                 </div>
 
             </div>
@@ -203,6 +215,12 @@
             <li class="nav-item">
                 <button class="nav-link" data-tab="losers">Top Losers</button>
             </li> 
+          <!--   <li class="nav-item">
+                <button class="nav-link" data-tab="weekHigh">52-week-high</button>
+            </li> 
+              <li class="nav-item">
+                <button class="nav-link" data-tab="weekLow">52-week-low</button>
+            </li> -->
         </ul>
 
         <!-- TABLE -->
@@ -277,27 +295,27 @@ function renderTable(type) {
 
     stockData[type].forEach(stock => {
 
-        const change = parseFloat(stock.regularMarketChange ?? 0);
-        const percent = parseFloat(stock.regularMarketChangePercent ?? 0);
+        const change = parseFloat(stock.changePercent ?? 0);
+        const percent = parseFloat(stock.changePercent ?? 0);
         const tradedValue = parseFloat(stock.tradedValue ?? 0);
 
         const changeClass = percent >= 0 ? 'text-success' : 'text-danger';
 
-        table.innerHTML += `
-            <tr>
-                <td>${stock.shortName ?? stock.symbol}</td>
-                <td>₹${(stock.regularMarketPrice ?? 0).toFixed(2)}</td>
-                <td class="${changeClass}">
-                    ${change.toFixed(2)}
-                </td>
-                <td class="${changeClass}">
-                    ${percent.toFixed(2)}%
-                </td>
-                <td>
-                    ${formatCrores(tradedValue)}
-                </td>
-            </tr>
-        `;
+        table.innerHTML += ` 
+<tr onclick="window.location='/company/${stock.symbol}'" style="cursor:pointer;">
+    <td>${stock.shortName ?? stock.symbol}</td>
+    <td>₹${(stock.changePercent ?? 0).toFixed(2)}</td>
+    <td class="${changeClass}">
+        ${change.toFixed(2)}
+    </td>
+    <td class="${changeClass}">
+        ${percent.toFixed(2)}%
+    </td>
+    <td>
+        ${formatCrores(tradedValue)}
+    </td>
+</tr>
+`;
     });
 }
 

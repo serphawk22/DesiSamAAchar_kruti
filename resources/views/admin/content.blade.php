@@ -32,9 +32,7 @@
             <input type="hidden" name="trending" value="1">
         @endif
 
-        <button class="btn btn-primary">
-            Search
-        </button>
+        <button class="btn btn-primary h-100">Search</button>
 
         @if(request('search'))
             <a href="{{ route('admin.content') }}"
