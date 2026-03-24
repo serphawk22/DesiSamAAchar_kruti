@@ -79,7 +79,8 @@ $stocks = DB::table('stock_watchlist')
             ];
         }
 
-
+$sectorImpact = $this->getTrendingImpact($marketService);
+//dd($sectorImpact);
         // RETURN VIEW
         return view('user.dashboard', compact(
             'userName',
@@ -89,9 +90,51 @@ $stocks = DB::table('stock_watchlist')
             'losers',
             'watchlist',
             'latestNews', 
-            'dividends'
+            'dividends',
+            'sectorImpact'
         ));
     }
+// 📊 TRENDING NEWS IMPACT HEATMAP
+private function getTrendingImpact(UpstoxMarketService $marketService)
+{
+      // NSE Sector Indices
+    $sectors = [
+        'IT'     => 'NSE_INDEX|Nifty IT',
+        'BANKING'=> 'NSE_INDEX|Nifty Bank',
+        'AUTO'   => 'NSE_INDEX|Nifty Auto',
+        'PHARMA' => 'NSE_INDEX|Nifty Pharma'
+    ];
 
+    $heatmap = [];
+
+    foreach ($sectors as $sector => $instrument) {
+
+        $quote = $marketService->getQuote($instrument);
+
+        $change = $quote['net_change'] ?? 0;
+        $price  = $quote['last_price'] ?? 0;
+
+        $percent = 0;
+
+        if ($price != 0) {
+            $percent = round(($change / ($price - $change)) * 100, 2);
+        }
+
+        if ($percent > 0.5) {
+            $trend = 'up';
+        } elseif ($percent < -0.5) {
+            $trend = 'down';
+        } else {
+            $trend = 'neutral';
+        }
+
+        $heatmap[$sector] = [
+            'percent' => $percent,
+            'trend'   => $trend
+        ];
+    }
+
+    return $heatmap;
+}
   
 }
